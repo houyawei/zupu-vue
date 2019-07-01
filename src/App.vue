@@ -1,6 +1,6 @@
 <template>
     <div id="app">
-        <HelloWorld msgH1="测试功能中"/>
+        <HelloWorld msgH1="侯氏族谱"/>
     </div>
 </template>
 
