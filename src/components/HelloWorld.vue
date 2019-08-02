@@ -149,6 +149,7 @@
 			},
 			// 添加
 			addFun() {
+
 				this.zhiXingaddFun(this.fatherName, this.nameAdd, zupuInfo);
 				if (this.fatSelFlag) {
 					this.queNoFatResFalg = true;
