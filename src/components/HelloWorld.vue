@@ -16,10 +16,18 @@
             </li>
             <li>
                 <div>
-                    <el-input class="operaGenInput" placeholder="请输入添加人父亲的名字" v-model="fatherName"
-                              clearable></el-input>
-                    <el-input class="operaGenInput" placeholder="请输入要添加的名字" v-model="nameAdd" clearable></el-input>
-                    <el-button @click="addFun()">添&nbsp;&nbsp;&nbsp;&nbsp;加</el-button>
+                    <div class="dd">
+                        <el-input class="operaGenInput" placeholder="请输入添加人父亲的名字" v-model="fatherName"
+                                  clearable></el-input>
+                        <el-date-picker v-model="fatherBar" class="dataInput" value-format="yyyy-MM-dd" type="date"
+                                        placeholder="父亲出生日期"></el-date-picker>
+                    </div>
+                    <div class="dd">
+                        <el-input class="operaGenInput" placeholder="请输入要添加的名字" v-model="nameAdd" clearable></el-input>
+                        <el-date-picker v-model="nameBar" class="dataInput" value-format="yyyy-MM-dd" type="date"
+                                        placeholder="添加人出生日期"></el-date-picker>
+                    </div>
+                    <el-button class="addBtn" @click="addFun()">添&nbsp;&nbsp;&nbsp;&nbsp;加</el-button>
                 </div>
             </li>
         </ul>
@@ -45,6 +53,7 @@
                 center>
             <span class="promptCon">没有查询到此人父亲的名字，请确认名字是否正确！</span>
         </el-dialog>
+        <!--<div class="oblicv"></div>-->
     </div>
 </template>
 
@@ -66,7 +75,9 @@
 				findName: '',
 				nameShanChu: "",
 				nameAdd: "",
+				nameBar: "",
 				fatherName: '',
+				fatherBar: '',
 				// 找到的数据
 				selObj: {},
 				copyZupuInfo: {},
@@ -74,13 +85,20 @@
 				queNoResFalg: false,
 				queNoFatResFalg: false,
 				delName: '',
+				allData: null,
 				selFlag: true,
 				eachFlag: true,
 				fatSelFlag: true
 			}
 		},
 		mounted() {
-			this.drawLine(zupuInfo);
+			try {
+				this.drawLine(zupuInfo);
+				// this.drawLine(this.allData);
+				// this.getData();
+			} catch (e) {
+				console.log(e, 'catch');
+			}
 		},
 		methods: {
 			drawLine(data) {
@@ -135,7 +153,20 @@
 				if (this.fatSelFlag) {
 					this.queNoFatResFalg = true;
 				} else {
-					this.drawLine(zupuInfo);
+					let obj = {
+						pname: this.fatherName,
+						pbirthdate: this.fatherBar,
+						cname: this.nameAdd,
+						cbirthdate: this.nameBar
+					};
+					this.$http.post('fillAll.do', obj).then(res => {
+						if (res.data) {
+							this.drawLine(res.data);
+						}
+						console.log(res, 'res');
+					}).catch(error => {
+						console.log(error, 'error');
+					})
 				}
 			},
 			zhiXingaddFun(fatherName, name, obj) {
@@ -218,6 +249,19 @@
 						this.traveData(name, obj.children[i]);
 					}
 				}
+			},
+
+			// 发送数据
+			// 		O2t7pZre1OkhDu7s9zr4bfoI3ETKuG9a
+			getData() {
+				this.$http.get('fillAll.do').then(res => {
+					if (res.data) {
+						this.allData = res.data;
+					}
+					console.log(res, 'res');
+				}).catch(error => {
+					console.log(error, 'error');
+				})
 			}
 		}
 	}
@@ -225,6 +269,28 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+    .dd {
+        margin-bottom: 20px;
+    }
+
+    li .addBtn {
+        position: absolute;
+        top: 20%;
+        right: 10%;
+    }
+
+    .oblicv {
+        position: absolute;
+        top: 5%;
+        left: 5%;
+        width: 10%;
+        height: 5%;
+        background: -webkit-linear-gradient(left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1)); /* Safari 5.1 - 6.0 */
+        background: -o-linear-gradient(right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1)); /* Opera 11.1 - 12.0 */
+        background: -moz-linear-gradient(right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1)); /* Firefox 3.6 - 15 */
+        background: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1)); /* 标准的语法（必须放在最后） */
+    }
+
     .hello {
         width: 100%;
         height: 100%;
@@ -249,7 +315,7 @@
     }
 
     .operaGen > li:last-child {
-        width: 40%;
+        width: 50%;
     }
 
     .operaGen > li:last-child div > .operaGenInput {
@@ -279,9 +345,14 @@
     li {
         display: inline-block;
         margin: 0 10px;
+        position: relative;
     }
 
     a {
         color: #42b983;
+    }
+
+    .el-date-editor.dataInput {
+        /*width: 150px;*/
     }
 </style>
